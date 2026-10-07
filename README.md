@@ -4,10 +4,13 @@ Giochi di parole e di numeri in italiano, in una pagina web che funziona anche s
 
 - **Cruciverba**: schemi sempre nuovi, 18 materie da includere o escludere, 5 livelli di difficoltà,
   definizioni dalla più facile alla più enigmatica, possibilità di costruire lo schema attorno a una parola.
+- **Crucipuzzle**: parole dell'archivio nascoste nella griglia, per materia; le lettere avanzate formano
+  la parola segreta. Dal livello 2 anche in diagonale, dal 3 all'indietro, all'Esperto si cerca dalle definizioni.
+- **Indovina la parola**: tre indizi, dal più enigmatico al più facile (3, 2 o 1 punto); da soli o a squadre, alla LIM.
 - **Sudoku**: griglie con soluzione unica, 5 livelli valutati con tecniche di risoluzione "umane".
 - **Crea cruciverba**: editor con parole e definizioni proprie, schema classico, vario, disegnato
   a mano o libero, completato con parole dell'archivio scelte per materia e difficoltà.
-- **PDF**: schema vuoto o con soluzione, in A4, mezza pagina orizzontale o due copie affiancate.
+- **PDF**: cruciverba, crucipuzzle e sudoku, vuoti o con soluzione, in A4, mezza pagina orizzontale o due copie affiancate.
 
 ## Come si usa
 
@@ -52,6 +55,8 @@ js/core.js                    nucleo: registro dei giochi, archivio parole, memo
 js/pdf.js                     generatore di PDF senza librerie esterne
 js/app.js                     schermata iniziale, archivio, statistiche, giochi "in arrivo"
 js/giochi/cruciverba.js       generatore e griglia del cruciverba
+js/giochi/crucipuzzle.js      generatore e griglia del crucipuzzle (parola segreta)
+js/giochi/indovina.js         indovina la parola a tre indizi, anche a squadre
 js/giochi/sudoku.js           generatore e griglia del sudoku
 js/giochi/editor.js           editor di cruciverba
 data/cruciverba/<materia>.js       archivio di base, un file per materia

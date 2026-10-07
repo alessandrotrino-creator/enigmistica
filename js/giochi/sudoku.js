@@ -389,6 +389,7 @@
     id: "sudoku",
     nome: "Sudoku",
     descrizione: "Griglie sempre diverse con soluzione unica, dalla prima partita alle tecniche avanzate.",
+    livelli: LIVELLI,
     monta
   });
   E._sudoku = { genera, valuta, soluzioni, LIVELLI };

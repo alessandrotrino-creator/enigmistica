@@ -64,20 +64,20 @@
       el("tfoot", null, el("tr", null, el("th", { scope: "row" }, "Totale"), el("td", null, tot.toLocaleString("it-IT")),
         el("td", { colspan: "3" }), el("td", null, E.MATERIE.reduce((s, m) => s + E.contaDefinizioni(m.id), 0).toLocaleString("it-IT"))))));
 
-    const stat = el("div", { class: "statistiche" }, ["cruciverba", "sudoku"].map(id => {
-      const st = E.memoria.leggi("stat:" + id, {});
-      const nomi = (id === "cruciverba" ? E._cruciverba : E._sudoku).LIVELLI;
-      const fmt = s => s == null ? "—" : String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
-      return el("div", { class: "stat-gioco" }, el("h3", null, id === "cruciverba" ? "Cruciverba" : "Sudoku"),
-        el("ol", null, nomi.map(l => el("li", null, el("span", null, l.n + " · " + l.nome),
-          el("span", null, (st[l.n] ? st[l.n].risolti : 0) + " risolti"),
-          el("span", { title: "Miglior tempo senza aiuti" }, fmt(st[l.n] && st[l.n].migliore))))));
+    // Giochi con livelli: risolti e miglior tempo senza aiuti, oppure partite e miglior punteggio.
+    const stat = el("div", { class: "statistiche" }, E.giochi.filter(g => g.livelli).map(g => {
+      const st = E.memoria.leggi("stat:" + g.id, {}), punti = g.misura === "punti";
+      const fmt = s => s == null ? "—" : punti ? s + " pt" : String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+      return el("div", { class: "stat-gioco" }, el("h3", null, g.nome),
+        el("ol", null, g.livelli.map(l => el("li", null, el("span", null, l.n + " · " + l.nome),
+          el("span", null, (st[l.n] ? st[l.n].risolti : 0) + (punti ? " partite" : " risolti")),
+          el("span", { title: punti ? "Miglior punteggio da solo" : "Miglior tempo senza aiuti" }, fmt(st[l.n] && st[l.n].migliore))))));
     }));
 
     vista.append(
       el("section", { class: "apertura" },
         el("p", { class: "occhiello" }, "Giochi di parole e di numeri"),
-        el("p", { class: "sottotitolo" }, "Cruciverba con definizioni originali in italiano, da scegliere per materia, e sudoku a soluzione unica. Cinque livelli per ciascun gioco, partite salvate automaticamente.")),
+        el("p", { class: "sottotitolo" }, "Cruciverba, crucipuzzle e indovinelli a indizi con definizioni originali in italiano, da scegliere per materia, e sudoku a soluzione unica. Cinque livelli per ciascun gioco, partite salvate automaticamente.")),
       el("h2", { class: "titoletto" }, "Giochi"), giochi,
       el("h2", { class: "titoletto" }, "In arrivo"), prossimi,
       el("div", { class: "due-colonne" },
@@ -102,6 +102,12 @@
       "TU..A.TE".padEnd(9, ".").split("").forEach((ch, i) => s.append(el("i", { class: ch === "." ? (i === 4 ? "" : "n") : "" }, ch === "." ? (i === 4 ? "✎" : "") : ch)));
       return s;
     }
+    if (id === "crucipuzzle") {
+      const s = el("span", { class: "mini-cv mini-cp" });
+      "SOLAMIRET".split("").forEach((ch, i) => s.append(el("i", { class: i % 4 === 0 ? "hl" : "" }, ch)));
+      return s;
+    }
+    if (id === "indovina") return el("span", { class: "mini-ig" }, el("b", null, "?"), el("i"), el("i"), el("i"));
     return el("span", null, "?");
   }
 

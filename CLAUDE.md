@@ -21,6 +21,14 @@ Pensata anche per la scuola: contenuti adatti a studenti, interfaccia chiara, st
   `monta(contenitore)` disegna il gioco e restituisce `{ smonta() }`. La navigazione è per hash (`#cruciverba`).
 - `js/giochi/cruciverba.js`: generatore a schema libero (`tentativo`, `genera`, `componi`), `LIVELLI`
   (lato, notorietà massima, quali definizioni usare, obiettivo di parole). Esporta `E._cruciverba`.
+- `js/giochi/crucipuzzle.js`: cerca-parole. Generatore in tre fasi (parole principali dove incrociano,
+  riempimento dei buchi con indice per lunghezza/posizione, parola segreta con le lettere avanzate) e
+  controllo che ogni parola compaia una sola volta (`occorrenze`). Selezione per trascinamento o tocco
+  inizio/fine, tratti in SVG sopra la griglia. PDF in `pdfCrucipuzzle`. Esporta `E._crucipuzzle`.
+- `js/giochi/indovina.js`: tre definizioni dalla difficile alla facile (3/2/1 punti), da soli o a squadre;
+  le parole già uscite sono in `memoria` "indovina:viste". Esporta `E._indovina`.
+- `registraGioco` accetta anche `livelli` (per le statistiche della home) e `misura: "punti"`
+  (punteggio migliore al posto del tempo).
 - `js/giochi/editor.js`: editor. Griglia a caselle nere (`trovaSlot`, `generaNere` simmetrico o vario),
   risolutore a backtracking con indice per lunghezza/posizione (`creaIndice`, `candidati`, `risolvi`),
   che annerisce caselle dove fallisce. Lo stato della bozza è in `memoria` "editor:bozza".

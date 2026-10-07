@@ -15,6 +15,8 @@
   --errore-tenue: #fbe3e0;
   --ok: #1f7a4d;
   --cv-casella: #ffffff; --cv-lettera: #16203a; --cv-num: #5a6278; --cv-attiva: #fff4c2; --cv-cursore: #ffe066; --cv-rivelata: #2848c8; --cv-errata: #c2352b;
+  /* Evidenziatori del crucipuzzle: la griglia resta chiara anche nel tema scuro, come le caselle --cv-* */
+  --cp-1: rgba(255, 196, 0, .5); --cp-2: rgba(40, 72, 200, .3); --cp-3: rgba(31, 160, 90, .35); --cp-4: rgba(220, 70, 60, .3); --cp-5: rgba(150, 70, 210, .3); --cp-6: rgba(0, 160, 180, .35);
   --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --testo: "Source Serif 4", Georgia, "Times New Roman", serif;
   --ui: "Archivo", "Segoe UI", system-ui, sans-serif;
@@ -356,6 +358,93 @@ table.archivio { width: 100%; border-collapse: collapse; font: 500 14px/1.4 var(
   .form-mie { grid-template-columns: 1fr; }
   .lista-mie li { grid-template-columns: 1fr auto; }
   .lista-mie li input { grid-column: 1 / -1; }
+}
+
+/* Icone della home */
+.mini-cp i.hl { background: var(--evidenzia); }
+.mini-ig {
+  width: 72px; height: 72px; border: 2px solid var(--nero); background: var(--foglio); border-radius: 4px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+}
+.mini-ig b { font: 800 30px/1 var(--display); color: var(--accento); }
+.mini-ig i { display: block; height: 4px; background: var(--filo); border-radius: 2px; width: 70%; }
+.mini-ig i:nth-child(3) { width: 55%; } .mini-ig i:nth-child(4) { width: 40%; }
+
+/* Crucipuzzle */
+.partita-cp { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.contenitore-cp { position: relative; width: min(100%, calc(var(--lato) * 44px)); container-type: inline-size; }
+.griglia-cp {
+  display: grid; grid-template-columns: repeat(var(--lato), 1fr); background: var(--cv-casella); border: 2px solid var(--nero);
+  user-select: none; -webkit-user-select: none; touch-action: none; cursor: crosshair;
+}
+.cella-cp { aspect-ratio: 1; display: grid; place-items: center; color: var(--cv-lettera); font: 700 calc(56cqw / var(--lato))/1 var(--ui); }
+.cella-cp.coperta { color: var(--cv-num); opacity: .35; }
+.cella-cp.segreta { color: var(--cv-rivelata); }
+.cella-cp.inizio { background: var(--cv-cursore); border-radius: 50%; }
+.griglia-cp:focus-visible .cella-cp.cursore { outline: 2px solid var(--accento); outline-offset: -2px; }
+.tratti-cp { position: absolute; left: 2px; top: 2px; width: calc(100% - 4px); height: calc(100% - 4px); pointer-events: none; mix-blend-mode: multiply; }
+.tratti-cp line { stroke-width: .78; stroke-linecap: round; fill: none; }
+.tratti-cp line.selezione { stroke: var(--cv-cursore); opacity: .85; }
+.tratti-cp line.errata { stroke: var(--cv-errata); opacity: .45; }
+.segreta-cp { margin-top: 14px; padding: 12px 14px; background: var(--foglio); border: 1.5px dashed var(--filo); border-radius: var(--raggio); }
+.segreta-cp h3, .colonna-elenco h3 { font: 700 13px/1.2 var(--ui); text-transform: uppercase; letter-spacing: .08em; color: var(--accento); }
+.def-segreta { margin: 6px 0 10px; font-size: 17px; line-height: 1.35; }
+.riga-segreta, .riga-risposta { display: flex; gap: 8px; }
+.riga-segreta input, .risposta-ig {
+  flex: 1; min-width: 0; font: 600 18px/1.2 var(--ui); letter-spacing: .06em; text-transform: uppercase;
+  padding: 10px 12px; border: 1.5px solid var(--filo); border-radius: var(--raggio); background: var(--carta); color: var(--inchiostro);
+}
+.riga-segreta input:focus, .risposta-ig:focus { border-color: var(--accento); outline: none; }
+.colonna-elenco h3 { margin-bottom: 10px; color: var(--inchiostro); }
+.elenco-cp { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 20px; font: 600 15px/1.3 var(--ui); letter-spacing: .03em; }
+.elenco-cp li { padding: 4px 0; break-inside: avoid; }
+.elenco-cp li.trovata span { text-decoration: line-through; color: var(--tenue); }
+.elenco-cp.con-def { columns: 1; font: 400 16px/1.4 var(--testo); letter-spacing: 0; counter-reset: def; }
+.elenco-cp.con-def li { padding: 6px 0; border-bottom: 1px solid var(--filo); }
+.elenco-cp.con-def li::before { counter-increment: def; content: counter(def) ". "; font: 700 13px var(--ui); }
+.elenco-cp li b { display: block; font: 700 13px/1.4 var(--ui); letter-spacing: .06em; color: var(--accento); }
+
+/* Indovina la parola */
+.partita-ig { max-width: 760px; margin: 0 auto; }
+.tabellone-ig { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.squadra-ig { display: flex; gap: 10px; align-items: center; padding: 8px 14px; border: 1.5px solid var(--filo); border-radius: var(--raggio); background: var(--foglio); font: 600 14px/1.2 var(--ui); }
+.squadra-ig b { font: 800 22px/1 var(--display); }
+.squadra-ig.turno { border-color: var(--inchiostro); background: var(--evidenzia-tenue); box-shadow: inset 0 -3px 0 var(--evidenzia); }
+.carta-ig { background: var(--foglio); border: 2px solid var(--inchiostro); border-radius: var(--raggio); padding: 20px; display: grid; gap: 16px; }
+.riga-carta { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.numero-ig { font: 600 14px/1.3 var(--ui); color: var(--tenue); }
+.caselle-ig { display: flex; flex-wrap: wrap; gap: 4px; }
+.caselle-ig i {
+  width: calc(34px * var(--scala, 1)); aspect-ratio: 1; display: grid; place-items: center; font: 700 calc(19px * var(--scala, 1))/1 var(--ui);
+  border: 2px solid var(--nero); background: var(--cv-casella); color: var(--cv-lettera);
+}
+.caselle-ig i.spazio { border: 0; background: none; width: calc(14px * var(--scala, 1)); }
+.caselle-ig i.piena { color: var(--cv-rivelata); }
+.indizi-ig { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.indizi-ig li { padding: 10px 14px; border-left: 4px solid var(--evidenzia); background: var(--evidenzia-tenue); border-radius: 0 var(--raggio) var(--raggio) 0; }
+.indizi-ig li small { display: block; font: 700 11.5px/1.5 var(--ui); text-transform: uppercase; letter-spacing: .07em; color: var(--tenue); }
+.indizi-ig li span { font-size: calc(20px * var(--scala, 1)); line-height: 1.35; }
+.indizi-ig li.nascosto { background: none; border: 1.5px dashed var(--filo); border-left-width: 4px; color: var(--tenue); }
+.indizi-ig li.extra { opacity: .75; }
+.azioni-ig { display: flex; flex-wrap: wrap; gap: 8px; }
+.verdetto-ig { margin: 0; font: 800 calc(22px * var(--scala, 1))/1.2 var(--display); }
+.verdetto-ig.ok { color: var(--ok); }
+.verdetto-ig.no { color: var(--errore); }
+.carta-ig .zoom { justify-self: end; }
+.risposta-ig.scossa { animation: scossa .35s; border-color: var(--errore); }
+@keyframes scossa { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+.fine-ig { background: var(--foglio); border: 2px solid var(--ok); border-radius: var(--raggio); padding: 20px; display: grid; gap: 14px; justify-items: start; }
+.titolo-fine { font: 800 26px/1.2 var(--display); color: var(--ok); }
+.riepilogo-ig { margin: 0; padding-left: 1.6em; display: grid; gap: 4px; font: 500 15px/1.4 var(--ui); width: 100%; }
+.riepilogo-ig li span { color: var(--tenue); margin-left: 8px; }
+.riepilogo-ig li.saltata b { color: var(--errore); }
+
+@media (max-width: 900px) {
+  .partita-cp { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .carta-ig { padding: 14px; }
+  .caselle-ig i { width: calc(28px * var(--scala, 1)); font-size: calc(16px * var(--scala, 1)); }
 }
 
 /* Stampa: solo lo schema e le definizioni */

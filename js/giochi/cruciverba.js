@@ -637,6 +637,7 @@
     id: "cruciverba",
     nome: "Cruciverba",
     descrizione: "Schemi sempre nuovi, per materia o misti, con definizioni dalla più facile alla più enigmatica.",
+    livelli: LIVELLI,
     monta
   });
   E._cruciverba = { genera, tentativo, materieScelte, LIVELLI };

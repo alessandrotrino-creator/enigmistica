@@ -60,6 +60,10 @@
       rett(x, y, w, h, pieno, spessore) {
         cur.push((spessore ? n(spessore) : "0.6") + " w 0 g 0 G " + n(x) + " " + n(alt - y - h) + " " + n(w) + " " + n(h) + " re " + (pieno ? "f" : "S"));
       },
+      // Segmento con estremità arrotondate (grigio: 0 nero, 1 bianco), per cerchiare le parole.
+      tratto(x1, y1, x2, y2, spessore, grigio) {
+        cur.push("1 J " + n(grigio || 0) + " G " + n(spessore) + " w " + n(x1) + " " + n(alt - y1) + " m " + n(x2) + " " + n(alt - y2) + " l S 0 J");
+      },
       linea(x1, y1, x2, y2, spessore, tratteggio) {
         cur.push((tratteggio ? "[4 3] 0 d " : "[] 0 d ") + n(spessore || 0.5) + " w 0.5 G " + n(x1) + " " + n(alt - y1) + " m " + n(x2) + " " + n(alt - y2) + " l S [] 0 d");
       },
@@ -263,6 +267,118 @@
     doc.scarica(nomeFile(opz.soluzione ? "sudoku-soluzione" : "sudoku", ""));
   }
 
+  /* ---------- Crucipuzzle ---------- */
+
+  // Elenco delle parole (o delle definizioni numerate) distribuito in colonne; null se non entra.
+  function elencoCrucipuzzle(S, colonne, fs) {
+    const inter = fs * 1.22, out = [];
+    // Le parole semplici si dividono in parti uguali fra le colonne; le definizioni riempiono una colonna alla volta.
+    const perColonna = S.definizioni ? Infinity : Math.ceil(S.parole.length / colonne.length);
+    let ci = 0, y = colonne[0].y, nellaColonna = 0;
+    for (let i = 0; i < S.parole.length; i++) {
+      const p = S.parole[i], num = S.definizioni ? (i + 1) + "." : "";
+      const rientro = num ? larghezza("00.", fs, true) + 2 : 0, testo = S.definizioni ? p.def + " (" + p.len + ")" : p.testo;
+      let righe = aCapo(testo, fs, colonne[ci].w - rientro);
+      if (nellaColonna >= perColonna || y + righe.length * inter > colonne[ci].y + colonne[ci].h) {
+        nellaColonna = 0;
+        ci++; if (ci >= colonne.length) return null; y = colonne[ci].y;
+        righe = aCapo(testo, fs, colonne[ci].w - rientro);
+        if (y + righe.length * inter > colonne[ci].y + colonne[ci].h) return null;
+      }
+      const c = colonne[ci];
+      if (num) out.push({ x: c.x, y: y + fs, testo: num, fs, grassetto: true });
+      righe.forEach((r, j) => out.push({ x: c.x + rientro, y: y + fs + j * inter, testo: r, fs }));
+      y += righe.length * inter + (num ? fs * 0.18 : 0);
+      nellaColonna++;
+    }
+    return out;
+  }
+
+  // Griglia, elenco e parola segreta dentro il riquadro {x, y, w, h}. modo: "sotto" o "accanto".
+  function disegnaCrucipuzzle(doc, box, S, opz) {
+    const N = S.lato, ft = Math.min(16, box.h * 0.045 + 4);
+    const top = box.y + ft * 1.7, altezza = box.h - (top - box.y);
+    const segreta = "Parola segreta (" + S.segreta.r.length + " lettere): " + S.segreta.def +
+      (opz.soluzione ? ". Soluzione: " + S.segreta.testo : "   " + S.segreta.testo.replace(/\S/g, "_ ").replace(/  /g, "    ").trim());
+    for (const quota of opz.modo === "accanto" ? [0.6, 0.54, 0.48] : [0.66, 0.6, 0.54, 0.48]) {
+      let cella, gx, area;
+      if (opz.modo === "accanto") {
+        cella = Math.min(box.w * quota / N, altezza / N);
+        gx = box.x;
+        const xs = gx + cella * N + 14;
+        area = { x: xs, y: top, w: box.x + box.w - xs, h: altezza, nc: S.definizioni ? 1 : 2 };
+      } else {
+        cella = Math.min(box.w / N, altezza * quota / N, 40);
+        gx = box.x + (box.w - cella * N) / 2;
+        const yd = top + cella * N + 14;
+        area = { x: box.x, y: yd, w: box.w, h: box.y + box.h - yd, nc: S.definizioni ? (box.w > 400 ? 2 : 1) : (box.w > 400 ? 4 : 3) };
+      }
+      let righe = null, segRighe = null, fs;
+      for (fs = S.definizioni ? 10.5 : 12; fs >= (opz.minFs || 7.5); fs -= 0.25) {
+        segRighe = aCapo(segreta, fs, area.w);
+        const hSeg = segRighe.length * fs * 1.22 + fs * 1.2, gap = 10, wc = (area.w - gap * (area.nc - 1)) / area.nc;
+        const colonne = Array.from({ length: area.nc }, (_, i) => ({ x: area.x + i * (wc + gap), y: area.y, w: wc, h: area.h - hSeg }));
+        if (colonne[0].h > fs * 2) righe = elencoCrucipuzzle(S, colonne, fs);
+        if (righe) break;
+      }
+      if (!righe) continue;
+      if (opz.prova) return true;
+      doc.testo(box.x, box.y + ft, ft, (opz.titolo || "Crucipuzzle") + (opz.soluzione ? " — soluzione" : ""), { grassetto: true });
+      if (opz.sottotitolo) doc.testo(box.x + box.w, box.y + ft, ft * 0.55, opz.sottotitolo, { destra: true, grigio: true });
+      if (opz.soluzione) {
+        const centro = (r, c) => [gx + (c + 0.5) * cella, top + (r + 0.5) * cella];
+        const segmenti = S.parole.map(p => centro(p.r0, p.c0).concat(centro(p.r0 + p.dr * (p.len - 1), p.c0 + p.dc * (p.len - 1))));
+        segmenti.forEach(s => doc.tratto(s[0], s[1], s[2], s[3], cella * 0.78, 0));
+        segmenti.forEach(s => doc.tratto(s[0], s[1], s[2], s[3], cella * 0.78 - 1.3, 1));
+      }
+      for (let k = 0; k < N * N; k++) {
+        const r = Math.floor(k / N), c = k % N;
+        doc.testo(gx + (c + 0.5) * cella, top + (r + 0.72) * cella, cella * 0.52, S.griglia[k], { centro: true, grassetto: opz.soluzione && S.segreta.celle.includes(k) });
+      }
+      doc.rett(gx, top, cella * N, cella * N, false, 1.2);
+      righe.forEach(t => doc.testo(t.x, t.y, t.fs, t.testo, { grassetto: t.grassetto }));
+      const ySeg = area.y + area.h - segRighe.length * fs * 1.22;
+      segRighe.forEach((r, i) => doc.testo(area.x, ySeg + fs + i * fs * 1.22, fs, r));
+      doc.linea(area.x, ySeg - fs * 0.5, area.x + area.w, ySeg - fs * 0.5, 0.4, true);
+      return true;
+    }
+    return false;
+  }
+
+  function pdfCrucipuzzle(S, opz) {
+    opz = opz || {};
+    const m = 12 * MM;
+    if (opz.formato === "mezza" || opz.formato === "doppia") {
+      const prova = opz.formato === "mezza"
+        ? { larg: 210 * MM, alt: 148.5 * MM, box: { x: m, y: m, w: 210 * MM - 2 * m, h: 148.5 * MM - 2 * m }, modo: "accanto" }
+        : { larg: 297 * MM, alt: 210 * MM, box: { x: m * 0.8, y: m, w: 148.5 * MM - m * 1.6, h: 210 * MM - 2 * m }, modo: "sotto" };
+      if (!disegnaCrucipuzzle(documento(prova.larg, prova.alt).pagina(), prova.box, S, Object.assign({}, opz, { modo: prova.modo, prova: true }))) {
+        opz = Object.assign({}, opz, { formato: "a4" });
+        E.avviso("Il crucipuzzle è grande: l'ho impaginato su un A4 intero perché resti leggibile.", "ok");
+      }
+    }
+    let doc;
+    if (opz.formato === "mezza") {
+      doc = documento(210 * MM, 148.5 * MM).pagina();
+      disegnaCrucipuzzle(doc, { x: m, y: m, w: doc.larg - 2 * m, h: doc.alt - 2 * m }, S, Object.assign({}, opz, { modo: "accanto" }));
+    } else if (opz.formato === "doppia") {
+      doc = documento(297 * MM, 210 * MM).pagina();
+      const meta = doc.larg / 2;
+      [0, meta].forEach(x0 => disegnaCrucipuzzle(doc, { x: x0 + m * 0.8, y: m, w: meta - m * 1.6, h: doc.alt - 2 * m }, S, Object.assign({}, opz, { modo: "sotto" })));
+      doc.linea(meta, m * 0.5, meta, doc.alt - m * 0.5, 0.6, true);
+      doc.testo(meta + 3, doc.alt - m * 0.5, 6, "taglia qui", { grigio: true });
+    } else {
+      doc = documento(210 * MM, 297 * MM).pagina();
+      const box = { x: m, y: m, w: doc.larg - 2 * m, h: doc.alt - 2 * m };
+      if (!disegnaCrucipuzzle(doc, box, S, Object.assign({}, opz, { modo: "sotto" })) &&
+          !disegnaCrucipuzzle(doc, box, S, Object.assign({}, opz, { modo: "sotto", minFs: 6.5 }))) {
+        E.avviso("L'elenco è troppo lungo per un solo foglio.", "errore");
+        return;
+      }
+    }
+    doc.scarica(nomeFile(opz.soluzione ? "crucipuzzle-soluzione" : "crucipuzzle", ""));
+  }
+
   // Menu riutilizzabile: formato + vuoto/soluzione + pulsante.
   function menuPdf(crea) {
     const el = E.el;
@@ -276,5 +392,5 @@
       el("button", { class: "secondario", onclick: () => crea({ formato, soluzione: true }) }, "Scarica con soluzione"));
   }
 
-  E.pdf = { pdfCruciverba, pdfSudoku, menuPdf };
+  E.pdf = { pdfCruciverba, pdfSudoku, pdfCrucipuzzle, menuPdf };
 })();
