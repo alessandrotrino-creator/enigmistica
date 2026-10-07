@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verifica archivio</title>
+<style>
+  :root { --bg: #f3f4f6; --fg: #16203a; --tenue: #5a6278; --filo: #c9cdd8; --err: #c2352b; --ok: #1f7a4d; color-scheme: light; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #11141b; --fg: #e7e9f0; --tenue: #9aa1b5; --filo: #343b4c; --err: #ff8a7e; --ok: #6fd3a0; color-scheme: dark; } }
+  body { margin: 0; padding: 24px 16px; background: var(--bg); color: var(--fg); font: 15px/1.5 "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 1000px; margin: 0 auto; }
+  h1 { margin: 0 0 4px; } p { color: var(--tenue); margin: 0 0 16px; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; margin-bottom: 24px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--filo); vertical-align: top; }
+  td.n { text-align: right; }
+  .err { color: var(--err); } .ok { color: var(--ok); font-weight: 600; }
+  code { font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Verifica dell'archivio del cruciverba</h1>
+  <p>Controlla ogni file di <code>data/cruciverba/</code>: sintassi, voci malformate, definizioni che contengono la risposta, definizioni troppo lunghe. Va aperta tramite il server locale (<code>strumenti/server.ps1</code>).</p>
+  <div id="esito">Controllo in corso…</div>
+</main>
+<script src="../js/core.js"></script>
+<script>
+(async function () {
+  const E = Enigmistica, esito = document.getElementById("esito");
+  const html = await (await fetch("../index.html")).text();
+  const file = [...html.matchAll(/src="(data\/cruciverba\/[^"]+)"/g)].map(m => m[1]);
+  const righe = [], problemi = [];
+  for (const f of file) {
+    const r = await fetch("../" + f);
+    if (!r.ok) { righe.push([f, "mancante", "", ""]); continue; }
+    const src = await r.text();
+    try { new Function(src); } catch (e) { righe.push([f, "ERRORE DI SINTASSI: " + e.message, "", ""]); continue; }
+    const prima = E.avvisi.length;
+    let voci = 0;
+    const originale = E.parole;
+    E.parole = (m, lista) => { voci += lista.length; originale(m, lista); };
+    new Function(src)();
+    E.parole = originale;
+    righe.push([f, E.avvisi.length > prima ? (E.avvisi.length - prima) + " voci scartate" : "ok", voci, ""]);
+  }
+  for (const [m, lista] of Object.entries(E.archivio)) {
+    if (!E.MATERIE.some(x => x.id === m)) problemi.push([m, "—", "materia non elencata in MATERIE (core.js)"]);
+    for (const v of lista) v.def.forEach(arr => arr.forEach(d => {
+      const parole = E.normalizza(d).split(/\s+/);
+      if (v.r.length >= 3 && parole.some(w => w.includes(v.r))) problemi.push([m, v.r, "contiene la risposta: «" + d + "»"]);
+      if (d.length > 85) problemi.push([m, v.r, "troppo lunga (" + d.length + "): «" + d + "»"]);
+    }));
+  }
+  const tot = E.voci().length, defs = E.MATERIE.reduce((s, x) => s + E.contaDefinizioni(x.id), 0);
+  esito.innerHTML = "";
+  const t1 = document.createElement("table");
+  t1.innerHTML = "<thead><tr><th>File</th><th>Esito</th><th>Voci</th></tr></thead>";
+  const b1 = document.createElement("tbody");
+  righe.forEach(([f, e, n]) => { const tr = b1.insertRow(); tr.insertCell().textContent = f; const c = tr.insertCell(); c.textContent = e; c.className = e === "ok" ? "ok" : "err"; const cn = tr.insertCell(); cn.textContent = n; cn.className = "n"; });
+  t1.append(b1);
+  const sommario = document.createElement("p");
+  sommario.innerHTML = "<strong>" + tot.toLocaleString("it-IT") + " parole, " + defs.toLocaleString("it-IT") + " definizioni.</strong> " +
+    (problemi.length ? "<span class='err'>" + problemi.length + " definizioni da controllare</span> (alcune possono essere giochi di parole voluti)." : "<span class='ok'>Nessun problema trovato.</span>") +
+    (E.avvisi.length ? " <span class='err'>" + E.avvisi.length + " voci scartate.</span>" : "");
+  esito.append(sommario, t1);
+  if (problemi.length) {
+    const t2 = document.createElement("table");
+    t2.innerHTML = "<thead><tr><th>Materia</th><th>Parola</th><th>Problema</th></tr></thead>";
+    const b2 = document.createElement("tbody");
+    problemi.forEach(p => { const tr = b2.insertRow(); p.forEach(x => { tr.insertCell().textContent = x; }); });
+    t2.append(b2); esito.append(t2);
+  }
+  if (E.avvisi.length) { const pre = document.createElement("pre"); pre.textContent = E.avvisi.join("\n"); esito.append(pre); }
+})();
+</script>
+</body>
+</html>
