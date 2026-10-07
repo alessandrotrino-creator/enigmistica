@@ -77,7 +77,7 @@
     vista.append(
       el("section", { class: "apertura" },
         el("p", { class: "occhiello" }, "Giochi di parole e di numeri"),
-        el("p", { class: "sottotitolo" }, "Cruciverba, crucipuzzle e indovinelli a indizi con definizioni originali in italiano, da scegliere per materia, e sudoku a soluzione unica. Cinque livelli per ciascun gioco, partite salvate automaticamente.")),
+        el("p", { class: "sottotitolo" }, "Cruciverba, crucipuzzle e indovinelli a indizi con definizioni originali in italiano, da scegliere per materia, e giochi di logica con i numeri (sudoku, futoshiki, calcudoku) a soluzione unica. Cinque livelli per ciascun gioco, partite salvate automaticamente.")),
       el("h2", { class: "titoletto" }, "Giochi"), giochi,
       el("h2", { class: "titoletto" }, "In arrivo"), prossimi,
       el("div", { class: "due-colonne" },
@@ -105,6 +105,16 @@
     if (id === "crucipuzzle") {
       const s = el("span", { class: "mini-cv mini-cp" });
       "SOLAMIRET".split("").forEach((ch, i) => s.append(el("i", { class: i % 4 === 0 ? "hl" : "" }, ch)));
+      return s;
+    }
+    if (id === "futoshiki") {
+      const s = el("span", { class: "mini-sd mini-ft" });
+      ["2", "<", "4", "∧", "", "∨", "3", ">", "1"].forEach(ch => s.append(el("i", null, ch)));
+      return s;
+    }
+    if (id === "calcudoku") {
+      const s = el("span", { class: "mini-sd mini-cd" });
+      ["6+", "", "2÷", "", "", "", "3−", "", "4"].forEach(ch => s.append(el("i", null, ch)));
       return s;
     }
     if (id === "indovina") return el("span", { class: "mini-ig" }, el("b", null, "?"), el("i"), el("i"), el("i"));

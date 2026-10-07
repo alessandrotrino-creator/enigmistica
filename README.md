@@ -8,9 +8,11 @@ Giochi di parole e di numeri in italiano, in una pagina web che funziona anche s
   la parola segreta. Dal livello 2 anche in diagonale, dal 3 all'indietro, all'Esperto si cerca dalle definizioni.
 - **Indovina la parola**: tre indizi, dal più enigmatico al più facile (3, 2 o 1 punto); da soli o a squadre, alla LIM.
 - **Sudoku**: griglie con soluzione unica, 5 livelli valutati con tecniche di risoluzione "umane".
+- **Futoshiki**: numeri da 1 a N senza ripetizioni per riga e colonna, guidati dai segni < e >; da 4×4 a 7×7.
+- **Calcudoku**: gabbie con un risultato e un'operazione (dalle sole addizioni a tutte e quattro); da 4×4 a 7×7.
 - **Crea cruciverba**: editor con parole e definizioni proprie, schema classico, vario, disegnato
   a mano o libero, completato con parole dell'archivio scelte per materia e difficoltà.
-- **PDF**: cruciverba, crucipuzzle e sudoku, vuoti o con soluzione, in A4, mezza pagina orizzontale o due copie affiancate.
+- **PDF**: tutti i giochi tranne "Indovina la parola", vuoti o con soluzione, in A4, mezza pagina orizzontale o due copie affiancate.
 
 ## Come si usa
 
@@ -58,6 +60,7 @@ js/giochi/cruciverba.js       generatore e griglia del cruciverba
 js/giochi/crucipuzzle.js      generatore e griglia del crucipuzzle (parola segreta)
 js/giochi/indovina.js         indovina la parola a tre indizi, anche a squadre
 js/giochi/sudoku.js           generatore e griglia del sudoku
+js/giochi/latini.js           futoshiki e calcudoku (quadrati latini, stesso risolutore)
 js/giochi/editor.js           editor di cruciverba
 data/cruciverba/<materia>.js       archivio di base, un file per materia
 data/cruciverba/<materia>-piu.js   ampliamenti: parole nuove e definizioni alternative

@@ -8,7 +8,7 @@
   const LARG = [278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,
     1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,
     333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
-  const SPECIALI = { "…": 0x85, "‘": 0x91, "’": 0x92, "“": 0x93, "”": 0x94, "–": 0x96, "—": 0x97, "€": 0x80, "•": 0x95 };
+  const SPECIALI = { "…": 0x85, "‘": 0x91, "’": 0x92, "“": 0x93, "”": 0x94, "–": 0x96, "—": 0x97, "€": 0x80, "•": 0x95, "−": 0x2D };
 
   // Converte in WinAnsi (Windows-1252): lettere accentate e « » sono già nel range Latin-1.
   function ansi(s) {
@@ -379,6 +379,72 @@
     doc.scarica(nomeFile(opz.soluzione ? "crucipuzzle-soluzione" : "crucipuzzle", ""));
   }
 
+  /* ---------- Futoshiki e Calcudoku ---------- */
+
+  function disegnaLatino(doc, box, S, opz) {
+    const N = S.lato, ft = Math.min(16, box.h * 0.05 + 4), futo = S.tipo === "futoshiki";
+    doc.testo(box.x, box.y + ft, ft, (futo ? "Futoshiki" : "Calcudoku") + (opz.soluzione ? " — soluzione" : ""), { grassetto: true });
+    if (opz.sottotitolo) doc.testo(box.x + box.w, box.y + ft, ft * 0.55, opz.sottotitolo, { destra: true, grigio: true });
+    const top = box.y + ft * 1.8, lato = Math.min(box.w, box.h - (top - box.y), 16 * 28.35), gx = box.x + (box.w - lato) / 2;
+    const numero = (i, x, y, cella) => {
+      const v = opz.soluzione ? S.soluzione[i] : S.date[i];
+      if (v) doc.testo(x + cella / 2, y + cella * (futo ? 0.7 : 0.78), cella * 0.5, String(v), { centro: true, grassetto: !!S.date[i], grigio: !S.date[i] });
+    };
+    if (futo) {
+      const cella = lato / (N + 0.42 * (N - 1)), passo = cella * 1.42, sp = Math.max(1, cella * 0.045);
+      const pos = i => [gx + (i % N) * passo, top + Math.floor(i / N) * passo];
+      for (let i = 0; i < N * N; i++) { const [x, y] = pos(i); doc.rett(x, y, cella, cella, false, 1.3); numero(i, x, y, cella); }
+      // Ogni segno è una punta rivolta verso il numero più piccolo.
+      for (const s of S.segni) {
+        const [xa, ya] = pos(s.a), [xb, yb] = pos(s.b), g = cella * 0.42, h = cella * 0.09;
+        if (ya === yb) {
+          const cx = Math.min(xa, xb) + cella + g / 2, cy = ya + cella / 2, d = xa < xb ? -1 : 1;
+          doc.tratto(cx + d * h, cy, cx - d * h, cy - h * 1.3, sp); doc.tratto(cx + d * h, cy, cx - d * h, cy + h * 1.3, sp);
+        } else {
+          const cx = xa + cella / 2, cy = Math.min(ya, yb) + cella + g / 2, d = ya < yb ? -1 : 1;
+          doc.tratto(cx, cy + d * h, cx - h * 1.3, cy - d * h, sp); doc.tratto(cx, cy + d * h, cx + h * 1.3, cy - d * h, sp);
+        }
+      }
+    } else {
+      const cella = lato / N, gabbiaDi = [];
+      S.gabbie.forEach((q, k) => q.celle.forEach(i => { gabbiaDi[i] = k; }));
+      for (let k = 1; k < N; k++) {
+        doc.linea(gx + k * cella, top, gx + k * cella, top + lato, 0.4);
+        doc.linea(gx, top + k * cella, gx + lato, top + k * cella, 0.4);
+      }
+      for (let i = 0; i < N * N; i++) {
+        const r = Math.floor(i / N), c = i % N, x = gx + c * cella, y = top + r * cella;
+        if (c < N - 1 && gabbiaDi[i + 1] !== gabbiaDi[i]) doc.tratto(x + cella, y, x + cella, y + cella, 2.2);
+        if (r < N - 1 && gabbiaDi[i + N] !== gabbiaDi[i]) doc.tratto(x, y + cella, x + cella, y + cella, 2.2);
+        numero(i, x, y, cella);
+      }
+      S.gabbie.forEach(q => {
+        const i = q.celle[0];
+        doc.testo(gx + (i % N) * cella + cella * 0.07, top + Math.floor(i / N) * cella + cella * 0.24, cella * 0.2, q.op ? q.t + q.op : String(q.t), { grassetto: true });
+      });
+      doc.rett(gx, top, lato, lato, false, 2.4);
+    }
+  }
+
+  function pdfLatino(S, opz) {
+    opz = opz || {};
+    const m = 14 * MM;
+    let doc;
+    if (opz.formato === "mezza") {
+      doc = documento(210 * MM, 148.5 * MM).pagina();
+      disegnaLatino(doc, { x: m, y: m * 0.7, w: doc.larg - 2 * m, h: doc.alt - 1.4 * m }, S, opz);
+    } else if (opz.formato === "doppia") {
+      doc = documento(297 * MM, 210 * MM).pagina();
+      const meta = doc.larg / 2;
+      [0, meta].forEach(x0 => disegnaLatino(doc, { x: x0 + m * 0.6, y: m, w: meta - m * 1.2, h: doc.alt - 2 * m }, S, opz));
+      doc.linea(meta, m * 0.5, meta, doc.alt - m * 0.5, 0.6, true);
+    } else {
+      doc = documento(210 * MM, 297 * MM).pagina();
+      disegnaLatino(doc, { x: m, y: m, w: doc.larg - 2 * m, h: doc.alt - 2 * m }, S, opz);
+    }
+    doc.scarica(nomeFile((S.tipo || "griglia") + (opz.soluzione ? "-soluzione" : ""), ""));
+  }
+
   // Menu riutilizzabile: formato + vuoto/soluzione + pulsante.
   function menuPdf(crea) {
     const el = E.el;
@@ -392,5 +458,5 @@
       el("button", { class: "secondario", onclick: () => crea({ formato, soluzione: true }) }, "Scarica con soluzione"));
   }
 
-  E.pdf = { pdfCruciverba, pdfSudoku, pdfCrucipuzzle, menuPdf };
+  E.pdf = { pdfCruciverba, pdfSudoku, pdfCrucipuzzle, pdfLatino, menuPdf };
 })();

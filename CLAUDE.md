@@ -27,6 +27,11 @@ Pensata anche per la scuola: contenuti adatti a studenti, interfaccia chiara, st
   inizio/fine, tratti in SVG sopra la griglia. PDF in `pdfCrucipuzzle`. Esporta `E._crucipuzzle`.
 - `js/giochi/indovina.js`: tre definizioni dalla difficile alla facile (3/2/1 punti), da soli o a squadre;
   le parole già uscite sono in `memoria` "indovina:viste". Esporta `E._indovina`.
+- `js/giochi/latini.js`: Futoshiki e Calcudoku in un solo modulo (due `registraGioco`). Quadrato latino
+  casuale, risolutore con candidati a maschera di bit (righe/colonne + segni o gabbie, `possibile`) che
+  conta fino a 2 soluzioni. Unicità: Futoshiki aggiunge numeri dove due soluzioni differiscono e poi toglie
+  i superflui; Calcudoku stacca in una gabbia singola una casella ambigua. Fra alcune griglie tiene quella
+  con meno numeri dati. PDF in `pdfLatino`. Esporta `E._latini`.
 - `registraGioco` accetta anche `livelli` (per le statistiche della home) e `misura: "punti"`
   (punteggio migliore al posto del tempo).
 - `js/giochi/editor.js`: editor. Griglia a caselle nere (`trovaSlot`, `generaNere` simmetrico o vario),

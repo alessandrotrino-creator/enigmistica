@@ -439,6 +439,36 @@ table.archivio { width: 100%; border-collapse: collapse; font: 500 14px/1.4 var(
 .riepilogo-ig li span { color: var(--tenue); margin-left: 8px; }
 .riepilogo-ig li.saltata b { color: var(--errore); }
 
+/* Futoshiki e Calcudoku */
+.partita-lt { max-width: 520px; margin: 0 auto; }
+.partita-lt .tastierino { margin-inline: auto; }
+.griglia-lt { display: grid; width: 100%; aspect-ratio: 1; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+.griglia-lt.calcudoku { grid-template-columns: repeat(var(--lato), 1fr); grid-template-rows: repeat(var(--lato), 1fr); border: 3px solid var(--inchiostro); background: var(--foglio); }
+.cella-lt {
+  position: relative; display: grid; place-items: center; min-width: 0; min-height: 0; cursor: pointer;
+  background: var(--foglio); color: var(--accento); container-type: inline-size;
+}
+.cella-lt .valore { font: 500 56cqw/1 var(--ui); }
+.cella-lt.data .valore { color: var(--inchiostro); font-weight: 700; }
+.futoshiki .cella-lt { border: 2px solid var(--inchiostro); border-radius: 6px; }
+.calcudoku .cella-lt.fd { border-right: 1px solid var(--filo); }
+.calcudoku .cella-lt.fb { border-bottom: 1px solid var(--filo); }
+.calcudoku .cella-lt.bd { border-right: 3px solid var(--inchiostro); }
+.calcudoku .cella-lt.bb { border-bottom: 3px solid var(--inchiostro); }
+.calcudoku .cella-lt .valore { padding-top: 16%; }
+.calcudoku .note { padding-top: 26%; }
+.etichetta { position: absolute; top: 4%; left: 6%; font: 700 21cqw/1 var(--ui); color: var(--inchiostro); white-space: nowrap; }
+.etichetta.violata { color: var(--errore); }
+.cella-lt.zona { background: var(--accento-tenue); }
+.cella-lt.uguale { background: var(--evidenzia-tenue); }
+.cella-lt.sel { background: var(--evidenzia); }
+.cella-lt.errata .valore, .cella-lt.conflitto:not(.data) .valore { color: var(--errore); }
+.cella-lt.conflitto.data .valore { text-decoration: underline wavy var(--errore); text-underline-offset: 3px; }
+.segno-ft { display: grid; place-items: center; font: 800 clamp(15px, 4.6vw, 26px)/1 var(--ui); color: var(--inchiostro); }
+.segno-ft.violato { color: var(--errore); }
+.mini-sd.mini-ft i:nth-child(even) { color: var(--inchiostro); }
+.mini-cd i { font-size: 10px; text-align: left; padding-left: 2px; line-height: 14px; color: var(--inchiostro); }
+
 @media (max-width: 900px) {
   .partita-cp { grid-template-columns: 1fr; }
 }
