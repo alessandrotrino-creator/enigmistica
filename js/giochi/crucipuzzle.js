@@ -39,6 +39,8 @@
   }
 
   const dentro = (N, r, c) => r >= 0 && c >= 0 && r < N && c < N;
+  // Le diagonali hanno meno posti e sono più corte vicino ai bordi: senza un vantaggio uscirebbero poco.
+  const BONUS_DIAG = 0.4, diag = (dr, dc) => dr !== 0 && dc !== 0;
 
   // Quante volte la parola compare nella griglia completa (le palindrome si leggono due volte nello stesso punto).
   function occorrenze(g, N, w) {
@@ -76,7 +78,7 @@
         if (s.some((ch, i) => ch && ch !== v.r[i])) continue;
         const incroci = s.filter(Boolean).length;
         if (incroci === v.r.length) continue;
-        const punti = incroci * 3 + Math.random() * 2;
+        const punti = incroci * 3 + Math.random() * 2 + (diag(dr, dc) ? BONUS_DIAG * 2 : 0);
         if (!best || punti > best.punti) best = { r, c, dr, dc, punti };
       }
       if (best) piazza(v, best.r, best.c, best.dr, best.dc);
@@ -91,9 +93,11 @@
       g.forEach((v, k) => { if (v === null && !bloccate.has(k)) libere.push(k); });
       if (!libere.length) break;
       const k = libere[Math.floor(Math.random() * libere.length)], r0 = Math.floor(k / N), c0 = k % N;
-      let scelta = null, visti = 0;
+      let scelta = null;
+      const quota = Math.ceil(40 / lv.dir.length) + 2;   // tentativi per direzione, così ognuna ha la sua parte
       for (const [dr, dc] of E.mescola(lv.dir.slice())) {
-        for (let L = Math.min(lv.max, N, 9); L >= lv.min && visti < 40; L--) for (let o = 0; o < L && visti < 40; o++) {
+        let visti = 0;
+        for (let L = Math.min(lv.max, N, 9); L >= lv.min && visti < quota; L--) for (let o = 0; o < L && visti < quota; o++) {
           const r = r0 - dr * o, c = c0 - dc * o;
           if (!dentro(N, r, c) || !dentro(N, r + dr * (L - 1), c + dc * (L - 1))) continue;
           const s = schema(r, c, dr, dc, L), nuove = s.filter(ch => !ch).length;
@@ -102,7 +106,7 @@
             const v = cand[Math.floor(Math.random() * cand.length)];
             if (legata(v.r)) continue;
             visti++;
-            const punti = nuove + Math.random();
+            const punti = nuove + Math.random() + (diag(dr, dc) ? BONUS_DIAG : 0);
             if (!scelta || punti > scelta.punti) scelta = { v, r, c, dr, dc, punti };
             break;
           }
