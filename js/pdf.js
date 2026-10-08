@@ -445,6 +445,50 @@
     doc.scarica(nomeFile((S.tipo || "griglia") + (opz.soluzione ? "-soluzione" : ""), ""));
   }
 
+  /* ---------- Nonogrammi ---------- */
+
+  function disegnaNonogramma(doc, box, S, opz) {
+    const R = S.righe, C = S.colonne, ft = Math.min(16, box.h * 0.05 + 4);
+    const corse = l => { const o = []; let n = 0; for (const v of l) { if (v) n++; else if (n) { o.push(n); n = 0; } } if (n) o.push(n); return o.length ? o : [0]; };
+    const ir = Array.from({ length: R }, (_, r) => corse(S.soluzione.slice(r * C, r * C + C)));
+    const ic = Array.from({ length: C }, (_, c) => corse(Array.from({ length: R }, (_, r) => S.soluzione[r * C + c])));
+    const li = Math.max(...ir.map(x => x.length)), ai = Math.max(...ic.map(x => x.length));
+    doc.testo(box.x, box.y + ft, ft, "Nonogramma" + (opz.soluzione ? " — soluzione" + (S.titolo ? ": " + S.titolo : "") : ""), { grassetto: true });
+    if (opz.sottotitolo) doc.testo(box.x + box.w, box.y + ft, ft * 0.55, opz.sottotitolo, { destra: true, grigio: true });
+    const top = box.y + ft * 1.8;
+    const cella = Math.min(box.w / (C + li * 0.75), (box.h - (top - box.y)) / (R + ai * 0.75), 36);
+    const ind = cella * 0.75, gx = box.x + (box.w - (C * cella + li * ind)) / 2 + li * ind, gy = top + ai * ind, fs = Math.min(cella * 0.55, 11);
+    ic.forEach((x, c) => x.forEach((v, i) => doc.testo(gx + (c + 0.5) * cella, gy - (x.length - i - 1) * ind - ind * 0.3, fs, String(v), { centro: true, grassetto: true })));
+    ir.forEach((x, r) => x.forEach((v, i) => doc.testo(gx - (x.length - i - 0.5) * ind, gy + (r + 0.68) * cella, fs, String(v), { centro: true, grassetto: true })));
+    const date = new Set(S.date);
+    for (let k = 0; k < R * C; k++) {
+      const x = gx + (k % C) * cella, y = gy + Math.floor(k / C) * cella;
+      if (S.soluzione[k] && (opz.soluzione || date.has(k))) doc.rett(x + 0.6, y + 0.6, cella - 1.2, cella - 1.2, true);
+      else if (date.has(k) && !opz.soluzione) { const m = cella * 0.3; doc.tratto(x + m, y + m, x + cella - m, y + cella - m, 0.8); doc.tratto(x + cella - m, y + m, x + m, y + cella - m, 0.8); }
+    }
+    for (let c = 0; c <= C; c++) { const x = gx + c * cella; if (c % 5 === 0 || c === C) doc.tratto(x, gy, x, gy + R * cella, 1.3); else doc.linea(x, gy, x, gy + R * cella, 0.4); }
+    for (let r = 0; r <= R; r++) { const y = gy + r * cella; if (r % 5 === 0 || r === R) doc.tratto(gx, y, gx + C * cella, y, 1.3); else doc.linea(gx, y, gx + C * cella, y, 0.4); }
+  }
+
+  function pdfNonogramma(S, opz) {
+    opz = opz || {};
+    const m = 14 * MM;
+    let doc;
+    if (opz.formato === "mezza") {
+      doc = documento(210 * MM, 148.5 * MM).pagina();
+      disegnaNonogramma(doc, { x: m, y: m * 0.7, w: doc.larg - 2 * m, h: doc.alt - 1.4 * m }, S, opz);
+    } else if (opz.formato === "doppia") {
+      doc = documento(297 * MM, 210 * MM).pagina();
+      const meta = doc.larg / 2;
+      [0, meta].forEach(x0 => disegnaNonogramma(doc, { x: x0 + m * 0.6, y: m, w: meta - m * 1.2, h: doc.alt - 2 * m }, S, opz));
+      doc.linea(meta, m * 0.5, meta, doc.alt - m * 0.5, 0.6, true);
+    } else {
+      doc = documento(210 * MM, 297 * MM).pagina();
+      disegnaNonogramma(doc, { x: m, y: m, w: doc.larg - 2 * m, h: doc.alt - 2 * m }, S, opz);
+    }
+    doc.scarica(nomeFile(opz.soluzione ? "nonogramma-soluzione" : "nonogramma", ""));
+  }
+
   // Menu riutilizzabile: formato + vuoto/soluzione + pulsante.
   function menuPdf(crea) {
     const el = E.el;
@@ -458,5 +502,5 @@
       el("button", { class: "secondario", onclick: () => crea({ formato, soluzione: true }) }, "Scarica con soluzione"));
   }
 
-  E.pdf = { pdfCruciverba, pdfSudoku, pdfCrucipuzzle, pdfLatino, menuPdf };
+  E.pdf = { pdfCruciverba, pdfSudoku, pdfCrucipuzzle, pdfLatino, pdfNonogramma, menuPdf };
 })();

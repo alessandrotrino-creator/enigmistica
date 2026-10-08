@@ -7,12 +7,18 @@ Giochi di parole e di numeri in italiano, in una pagina web che funziona anche s
 - **Crucipuzzle**: parole dell'archivio nascoste nella griglia, per materia; le lettere avanzate formano
   la parola segreta. Dal livello 2 anche in diagonale, dal 3 all'indietro, all'Esperto si cerca dalle definizioni.
 - **Indovina la parola**: tre indizi, dal più enigmatico al più facile (3, 2 o 1 punto); da soli o a squadre, alla LIM.
+- **Sfinge**: l'enigmistica classica con le parole dell'archivio: zeppe e scarti, aggiunte ed elisioni,
+  cambi di lettera, sciarade, anagrammi, bifronti e palindromi; da soli o a squadre.
+- **Scalette**: da una parola all'altra cambiando una lettera per volta, da 3 a 12 passi.
+- **Rebus**: rebus originali con le regole classiche (lettere aggiunte e lettere barrate da togliere), su tre
+  livelli: parole, frasi e luoghi, modi di dire, proverbi e titoli; figure emoji.
+- **Nonogrammi**: disegni da scoprire o griglie astratte infinite, da 5×5 a 20×20, risolvibili con la sola logica.
 - **Sudoku**: griglie con soluzione unica, 5 livelli valutati con tecniche di risoluzione "umane".
 - **Futoshiki**: numeri da 1 a N senza ripetizioni per riga e colonna, guidati dai segni < e >; da 4×4 a 7×7.
 - **Calcudoku**: gabbie con un risultato e un'operazione (dalle sole addizioni a tutte e quattro); da 4×4 a 7×7.
 - **Crea cruciverba**: editor con parole e definizioni proprie, schema classico, vario, disegnato
   a mano o libero, completato con parole dell'archivio scelte per materia e difficoltà.
-- **PDF**: tutti i giochi tranne "Indovina la parola", vuoti o con soluzione, in A4, mezza pagina orizzontale o due copie affiancate.
+- **PDF**: cruciverba, crucipuzzle, sudoku, futoshiki, calcudoku e nonogrammi, vuoti o con soluzione, in A4, mezza pagina orizzontale o due copie affiancate.
 
 ## Come si usa
 
@@ -59,6 +65,13 @@ js/app.js                     schermata iniziale, archivio, statistiche, giochi 
 js/giochi/cruciverba.js       generatore e griglia del cruciverba
 js/giochi/crucipuzzle.js      generatore e griglia del crucipuzzle (parola segreta)
 js/giochi/indovina.js         indovina la parola a tre indizi, anche a squadre
+js/giochi/sfinge.js           zeppe, aggiunte, cambi, sciarade, anagrammi, bifronti
+js/giochi/scalette.js         scalette di parole (una lettera per volta)
+data/sfinge/*.js              coppie per la Sfinge, riviste a mano; escluse.js: parole da non usare
+js/giochi/rebus.js            rebus con figure emoji
+data/rebus/*.js               figure del rebus e rebus originali per livello
+js/giochi/nonogrammi.js       nonogrammi: risolutore, generatore, griglia
+data/nonogrammi/*.js          disegni in pixel art per i nonogrammi
 js/giochi/sudoku.js           generatore e griglia del sudoku
 js/giochi/latini.js           futoshiki e calcudoku (quadrati latini, stesso risolutore)
 js/giochi/editor.js           editor di cruciverba

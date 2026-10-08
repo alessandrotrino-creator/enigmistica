@@ -79,6 +79,20 @@
     return m ? m.nome : id;
   }
 
+  // Giochi della Sfinge (data/sfinge/*.js): coppie o gruppi di parole dell'archivio, per tipo
+  // (zeppe, aggiunte, cambi, sciarade, anagrammi, bifronti); "escluse" elenca le parole da non usare nei giochi di parole.
+  const enigmi = {};
+  function sfinge(tipo, lista) { (enigmi[tipo] || (enigmi[tipo] = [])).push(...lista); }
+
+  // Rebus (data/rebus/*.js): figure (nome → emoji) e rebus per livello, [prima lettura, soluzione].
+  const archivioRebus = { figure: {}, livelli: {} };
+  function figureRebus(f) { Object.assign(archivioRebus.figure, f); }
+  function rebus(livello, lista) { (archivioRebus.livelli[livello] || (archivioRebus.livelli[livello] = [])).push(...lista); }
+
+  // Nonogrammi (data/nonogrammi/*.js): disegni { titolo, righe: ["#..#", ...] }.
+  const disegniNonogrammi = [];
+  function nonogrammi(lista) { disegniNonogrammi.push(...lista); }
+
   function registraGioco(g) { giochi.push(g); }
 
   // Memoria locale, tollerante agli errori (finestre private, archiviazione bloccata).
@@ -143,8 +157,8 @@
   }
 
   window.Enigmistica = {
-    MATERIE, archivio, avvisi, giochi,
-    parole, voci, nomeMateria, contaDefinizioni, normalizza, registraGioco,
+    MATERIE, archivio, avvisi, giochi, enigmi, archivioRebus, disegniNonogrammi,
+    parole, voci, nomeMateria, contaDefinizioni, normalizza, registraGioco, sfinge, figureRebus, rebus, nonogrammi,
     memoria, mescola, el, cronometro, puoStampare, avviso
   };
 })();

@@ -4,16 +4,7 @@
   const E = Enigmistica, el = E.el;
 
   // Giochi previsti: compaiono come "in arrivo" finché non viene registrato il modulo corrispondente.
-  const IN_ARRIVO = [
-    { id: "rebus", nome: "Rebus", descrizione: "Immagini e lettere da decifrare in una frase." },
-    { id: "zeppe", nome: "Zeppe", descrizione: "Una lettera in più cambia la parola: CASA → CASTA." },
-    { id: "sciarade", nome: "Sciarade", descrizione: "Due parole unite ne formano una terza: FILO + SOFIA." },
-    { id: "aggiunte", nome: "Aggiunte", descrizione: "Una lettera in testa o in coda: ALA → GALA." },
-    { id: "elisioni", nome: "Elisioni", descrizione: "Togli una lettera e trovi un'altra parola." },
-    { id: "palindromi", nome: "Palindromi", descrizione: "Parole e frasi che si leggono nei due sensi." },
-    { id: "anagrammi", nome: "Anagrammi", descrizione: "Le stesse lettere, un'altra parola." },
-    { id: "cambi", nome: "Cambi di lettera", descrizione: "Una lettera diversa, un significato nuovo." }
-  ];
+  const IN_ARRIVO = [];
 
   const vista = document.getElementById("vista");
   const titoloSezione = document.getElementById("titolo-sezione");
@@ -46,9 +37,9 @@
       el("span", { class: "segno", "aria-hidden": "true" }, segno(g.id)),
       el("span", { class: "testo" }, el("strong", null, g.nome), el("span", null, g.descrizione)),
       el("span", { class: "vai" }, "Gioca"))));
-    const prossimi = el("div", { class: "prossimi" },
-      IN_ARRIVO.filter(p => !E.giochi.some(g => g.id === p.id)).map(p =>
-        el("div", { class: "scheda-prossima" }, el("strong", null, p.nome), el("span", null, p.descrizione))));
+    const inArrivo = IN_ARRIVO.filter(p => !E.giochi.some(g => g.id === p.id));
+    const prossimi = inArrivo.length ? el("div", { class: "prossimi" }, inArrivo.map(p =>
+      el("div", { class: "scheda-prossima" }, el("strong", null, p.nome), el("span", null, p.descrizione)))) : null;
 
     const tot = E.voci().length;
     const righe = E.MATERIE.filter(m => (E.archivio[m.id] || []).length).map(m => {
@@ -77,9 +68,9 @@
     vista.append(
       el("section", { class: "apertura" },
         el("p", { class: "occhiello" }, "Giochi di parole e di numeri"),
-        el("p", { class: "sottotitolo" }, "Cruciverba, crucipuzzle e indovinelli a indizi con definizioni originali in italiano, da scegliere per materia, e giochi di logica con i numeri (sudoku, futoshiki, calcudoku) a soluzione unica. Cinque livelli per ciascun gioco, partite salvate automaticamente.")),
+        el("p", { class: "sottotitolo" }, "Cruciverba, crucipuzzle e indovinelli a indizi con definizioni originali in italiano, da scegliere per materia; l'enigmistica classica della Sfinge, i rebus e le scalette di parole; giochi di logica (sudoku, futoshiki, calcudoku, nonogrammi) a soluzione unica. Cinque livelli per ciascun gioco, partite salvate automaticamente.")),
       el("h2", { class: "titoletto" }, "Giochi"), giochi,
-      el("h2", { class: "titoletto" }, "In arrivo"), prossimi,
+      prossimi ? el("h2", { class: "titoletto" }, "In arrivo") : "", prossimi || "",
       el("div", { class: "due-colonne" },
         el("section", null, el("h2", { class: "titoletto" }, "Archivio del cruciverba"), tabella),
         el("section", null, el("h2", { class: "titoletto" }, "Le tue partite"), stat)));
@@ -105,6 +96,14 @@
     if (id === "crucipuzzle") {
       const s = el("span", { class: "mini-cv mini-cp" });
       "SOLAMIRET".split("").forEach((ch, i) => s.append(el("i", { class: i % 4 === 0 ? "hl" : "" }, ch)));
+      return s;
+    }
+    if (id === "sfinge") return el("span", { class: "mini-ig mini-pa" }, el("i", null, "PALO"), el("b", null, "+ I"), el("i", null, "PALIO"));
+    if (id === "scalette") return el("span", { class: "mini-ig mini-pa" }, el("i", null, "CA", el("u", null, "N"), "E"), el("i", null, "CA", el("u", null, "S"), "E"), el("i", null, "CAS", el("u", null, "A")));
+    if (id === "rebus") return el("span", { class: "mini-ig mini-rb" }, el("span", null, el("b", null, "P"), "🌹"), el("i", null, "PROSA"));
+    if (id === "nonogrammi") {
+      const s = el("span", { class: "mini-cv mini-ng" });
+      [0, 1, 0, 1, 1, 1, 0, 1, 0].forEach(v => s.append(el("i", { class: v ? "p" : "" })));
       return s;
     }
     if (id === "futoshiki") {

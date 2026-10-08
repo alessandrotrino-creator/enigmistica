@@ -105,7 +105,7 @@
       const lv = LIVELLI[S.livello - 1], t = S.turni[S.i];
       info.textContent = "Livello " + lv.n + " · " + lv.nome + " · " + etichetta(S.materie);
       const tot = S.punteggi.reduce((a, b) => a + b, 0);
-      punteggio.textContent = S.squadre > 1 ? "" : tot + " punti";
+      punteggio.textContent = S.squadre > 1 ? "" : tot + (tot === 1 ? " punto" : " punti");
       tabellone.innerHTML = "";
       tabellone.hidden = S.squadre < 2;
       S.punteggi.forEach((p, i) => tabellone.append(el("span", { class: "squadra-ig" + (!S.completato && S.i % S.squadre === i ? " turno" : "") },

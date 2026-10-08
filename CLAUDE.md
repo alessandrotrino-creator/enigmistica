@@ -32,6 +32,24 @@ Pensata anche per la scuola: contenuti adatti a studenti, interfaccia chiara, st
   conta fino a 2 soluzioni. Unicità: Futoshiki aggiunge numeri dove due soluzioni differiscono e poi toglie
   i superflui; Calcudoku stacca in una gabbia singola una casella ambigua. Fra alcune griglie tiene quella
   con meno numeri dati. PDF in `pdfLatino`. Esporta `E._latini`.
+- `js/giochi/sfinge.js`: zeppe/scarti, aggiunte/elisioni, cambi, sciarade, anagrammi, bifronti/palindromi.
+  Le coppie stanno in `data/sfinge/*.js` (`Enigmistica.sfinge(tipo, [...])`, raccolte in `E.enigmi`); le
+  definizioni si prendono dall'archivio del cruciverba (`definizione` scarta quelle che nominano l'altra parola).
+  `buona()` filtra sigle, parole solo inglesi e quelle in `data/sfinge/escluse.js`. Esporta `E._sfinge`.
+- `js/giochi/scalette.js`: grafo delle parole di pari lunghezza che differiscono per una lettera (secchi
+  con jolly), percorso minimo casuale; i passi sono il minimo anche col grafo completo, quindi ogni
+  scaletta completa è giusta. Esporta `E._scalette`.
+- Nuove coppie per la Sfinge: solo parole già nell'archivio, italiane, non banali, adatte alla scuola;
+  le parole da non usare mai nei giochi di parole vanno in `escluse.js`.
+- `js/giochi/rebus.js`: figure = emoji (solo Unicode ≤ 11, per Windows 10) definite in `data/rebus/figure.js`;
+  rebus originali in `data/rebus/*.js` come ["prima lettura", "soluzione"] con le regole del rebus classico:
+  MAIUSCOLO = figura, `FIGURA-x` = figura con la lettera x barrata (da togliere), minuscolo = lettere scritte
+  sulla figura successiva. `valido()` scarta i rebus in cui le lettere non tornano, in cui una figura letta
+  coincide con una parola intera della soluzione o fatti solo di figure intere (troppo facili).
+  Per controllare un file: lo script di verifica con le stesse regole (minimo figure, massimo lettere minuscole).
+- `js/giochi/nonogrammi.js`: risolutore riga per riga (`deduciRiga`, `deduci`); `caselleDate` aggiunge
+  caselle già date finché la sola logica basta. Disegni in `data/nonogrammi/*.js` ({ titolo, righe: "#.." }),
+  griglie astratte generate (forme compatte nei livelli facili, rumore in quelli alti). PDF in `pdfNonogramma`.
 - `registraGioco` accetta anche `livelli` (per le statistiche della home) e `misura: "punti"`
   (punteggio migliore al posto del tempo).
 - `js/giochi/editor.js`: editor. Griglia a caselle nere (`trovaSlot`, `generaNere` simmetrico o vario),
@@ -71,5 +89,5 @@ Pensata anche per la scuola: contenuti adatti a studenti, interfaccia chiara, st
 
 ## Prossimi passi previsti
 
-Giochi in `IN_ARRIVO` (`js/app.js`): rebus, zeppe, sciarade, aggiunte, elisioni, palindromi,
-anagrammi, cambi di lettera. Per i giochi di parole conviene un archivio dedicato in `data/<gioco>/`.
+`IN_ARRIVO` (`js/app.js`) è vuoto: la sezione "In arrivo" compare solo se ci sono voci.
+Proposti e non ancora fatti: crucinumeri, abbinamenti parola-definizione; PDF per Sfinge, Scalette e Rebus.
